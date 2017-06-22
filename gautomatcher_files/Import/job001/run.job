@@ -1,0 +1,10 @@
+job_type == 0
+is_continue == false
+Submit to queue? == No
+Input files: == Micrographs/12.06.31_CCD_Acquire.mrc
+Minimum dedicated cores per node: == 1
+Node type: == 2D micrographs/tomograms (*.mrc)
+Additional arguments: == 
+Queue submit command: == qsub
+Standard submission script: == 
+Queue name:  == openmpi

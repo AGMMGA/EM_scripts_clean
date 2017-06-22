@@ -1,0 +1,12 @@
+
+ ++++ Executing new job on Thu Jun 22 15:20:04 2017
+ ++++ with the following command(s): 
+`which relion_manualpick` --i Import/job001/micrographs.star --odir ManualPick/job002/ --pickname manualpick --allow_save   --fast_save --selection ManualPick/job002/micrographs_selected.star --scale 0.2 --sigma_contrast 3 --black 0 --white 0 --lowpass 20 --ctf_scale 1 --particle_diameter 100 
+echo Import/job001/micrographs.star > ManualPick/job002/coords_suffix_manualpick.star
+ ++++ 
+
+ ++++ Executing new job on Thu Jun 22 15:22:49 2017
+ ++++ with the following command(s): 
+`which relion_manualpick` --i Import/job001/micrographs.star --odir ManualPick/job002/ --pickname manualpick --allow_save   --fast_save --selection ManualPick/job002/micrographs_selected.star --scale 0.2 --sigma_contrast 3 --black 0 --white 0 --lowpass 20 --ctf_scale 1 --particle_diameter 100 
+echo Import/job001/micrographs.star > ManualPick/job002/coords_suffix_manualpick.star
+ ++++ 

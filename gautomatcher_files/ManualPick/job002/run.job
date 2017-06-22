@@ -1,0 +1,23 @@
+job_type == 3
+is_continue == true
+Pixel size (A) == -1
+Black value: == 0
+Blue value:  == 0
+MetaDataLabel for color: == rlnParticleSelectZScore
+Scale for CTF image: == 1
+Particle diameter (A): == 100
+Blue<>red color particles? == No
+Submit to queue? == No
+STAR file with color label:  == 
+Input micrographs: == Import/job001/micrographs.star
+Highpass filter (A) == -1
+Lowpass filter (A) == 20
+Scale for micrographs: == 0.2
+Minimum dedicated cores per node: == 1
+Additional arguments: == 
+Queue submit command: == qsub
+Standard submission script: == €έθ’ό
+Queue name:  == openmpi
+Red value:  == 2
+Sigma contrast: == 3
+White value: == 0

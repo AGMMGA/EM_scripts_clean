@@ -1,0 +1,7 @@
+
+ ++++ Executing new job on Thu Jun 22 15:19:46 2017
+ ++++ with the following command(s): 
+echo importing...
+relion_star_loopheader rlnMicrographName > Import/job001/micrographs.star
+ls Micrographs/12.06.31_CCD_Acquire.mrc >> Import/job001/micrographs.star
+ ++++ 
