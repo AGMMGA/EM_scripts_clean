@@ -13,7 +13,6 @@ class Gautomatcher(object):
     
     def __init__(self):
         super().__init__()
-        self.debug = True
         self.parse_arguments()
         self.check_args()
         self.mrc_files = glob.glob(os.path.join(self.mrc_folder, '*.mrc'))
@@ -106,7 +105,8 @@ class Gautomatcher(object):
     def pick_mrc(self, mrc):
         try:
             parms = self.test.copy() #otherwise we end up polluting def_parms
-            parms['filein'] = mrc 
+            parms['filein'] = mrc[0]
+            gid = mrc[1] 
             print('Processing {}'.format(mrc))
             for par in self.test:
                 new_jpg = self.copy_jpg(mrc, self.mrc_folder, par)
@@ -118,13 +118,14 @@ class Gautomatcher(object):
                     #creating folder and link names
                     basename = '{}_{}'.format(par, value)
                     out_folder = os.path.join(self.star_folder, basename)
-                    starfile = '{}_automatch.star'.format(os.path.basename(mrc).replace('.mrc', ''))
+                    starfile = '{}_automatch.star'.format(os.path.basename(mrc[0]).replace('.mrc', ''))
                     starfile = os.path.join(self.star_folder, basename, starfile)
                     print(f'Running gautomatch with {par} at {value}')
                     #doing the actual picking via gautomatch
                     linkname = self.prepare_gautomatch_folder(parms['filein'],
                                                                out_folder)
-                    self.run_gautomatch(par, value, linkname)
+                    print(gid)
+                    self.run_gautomatch(par, value, linkname, gid)
                     #collect picked coordinates
                     coords[str(count)] = self.read_coords(starfile)
                     count += 1
@@ -135,6 +136,7 @@ class Gautomatcher(object):
         except Exception as e:
             print(e.__name__)
             print(e)
+        return 1
     
     def prepare_gautomatch_folder(self, mrc, subfolder):
         '''
@@ -156,18 +158,16 @@ class Gautomatcher(object):
             raise
         return linkname   
     
-    def run_gautomatch(self, parameter, value, linkname):
+    def run_gautomatch(self, parameter, value, linkname, gpuid=0):
 #         cmd = 'gautomatch --apixM 1.76 --diameter 160 --speed {speed} --boxsize {boxsize} --min_dist {min_dist} --cc_cutoff {cc_cutoff} --lsigma_D {lsigma_D} --lsigma_cutoff {lsigma_cutoff} --lave_D {lave_d} --lave_max {lave_max} --lave_min {lave_min} --lp {lp} --hp {hp} {link}'.format(**parameter_set, link = linkname)
         test = f'--{parameter} {value}'
-        print(test)
         default = ' '.join([f'--{p} {v}' for p, v in self.default.items() if p != parameter])
-        cmd = f'gautomatch {default} {test} {linkname}'
+        gid = f'--gid {gpuid}'
+        cmd = f'gautomatch {default} {test} {gid} {linkname}'
         with Popen(cmd.split(), stdout = PIPE, stderr = PIPE) as gautomatch:
             print(f'Running gautomatch on {linkname}')
             out_ga, err = gautomatch.communicate()
             print(f'Ran gautomatch on {linkname}')
-#             print(out_ga)
-#             print(err)
         boxfile = '{}_automatch.box'.format(os.path.splitext(linkname)[0])
         with Popen(['wc', boxfile], stdout=PIPE, stderr=PIPE) as wc:
             out, err = wc.communicate()
@@ -248,7 +248,7 @@ class Gautomatcher(object):
     
     def copy_jpg(self, mrc, out_folder, par):
         original_jpg =os.path.join(self.jpg_in_folder, 
-                                   os.path.basename(mrc).replace('mrc', 'jpg')) 
+                                   os.path.basename(mrc[0]).replace('mrc', 'jpg')) 
         new_jpg = os.path.basename(original_jpg).replace('.jpg', '_{}.jpg').format(par)
         new_jpg = os.path.join(self.mrc_folder, new_jpg)
         shutil.copy(original_jpg, new_jpg)
@@ -272,12 +272,22 @@ class Gautomatcher(object):
             radius += 6 
         
     def run_parallel(self):
+        from itertools import cycle
+        from pycuda import driver
+        #initialize gpu driver simply to know gpu count
+        driver.init()
+        ngpus = driver.Device.count()
+        #pre-map each file to one gpu.
+        #note that we will let gautomatch do the assignment via the --gid flag
+        cycler = cycle(range(ngpus))
+        self.mrc_files = list(zip(self.mrc_files, cycler))
         with ProcessPoolExecutor(max_workers=3) as executor:
             executor.map(self.pick_mrc, self.mrc_files)
             
     def _run_sequential(self):
         #for debugging purposes since parallelization suppresses errors
         for f in self.mrc_files:
+            f = (f, 0) # 0 = gpuid
             self.pick_mrc(f)   
             
     def _import_parameters(self,parms_file):
@@ -340,6 +350,7 @@ class Gautomatcher(object):
     
 if __name__ == '__main__':
     g = Gautomatcher()
+    g.debug = 0
     g.main()
 
 
