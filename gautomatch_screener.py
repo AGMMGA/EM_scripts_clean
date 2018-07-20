@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from pprint import pprint
 import argparse
 import os
@@ -100,7 +102,7 @@ class Gautomatcher(object):
         if not self.diameter:
             self.diameter = self.default['diameter'] #already float
         #box size for drawing on image
-        self.box_size = float(self.diameter / self.apixM)
+        self.box_size = float(self.diameter) / float(self.apixM)
         
     def pick_mrc(self, mrc):
         try:
@@ -196,7 +198,7 @@ class Gautomatcher(object):
                          for i in self.mrc_files]
         return set(mrc_filenames) <= set(jpg_filenames)
 
-    def draw_circles(self, coords, box_size, radius, image, thickness = 5,
+    def draw_circles(self, coords, radius, image, thickness = 5,
                          color = '#00ff00'):
             '''
             coords = [(x0,y0),...(xn,yn)] where x and y specify the center of the binding box
@@ -264,7 +266,7 @@ class Gautomatcher(object):
                   '3': (30,190)}
         for i in ['1','2','3']:
             rgbimage = self.open_as_rgb(jpg)
-            rgbimage = self.draw_circles(coords[i], self.box_size, radius, rgbimage,
+            rgbimage = self.draw_circles(coords[i], radius, rgbimage,
                                     color= colors[i])
             rgbimage = self.write_on_image(rgbimage, text_legend[i], text_pos[i], 
                                       color = colors[i])

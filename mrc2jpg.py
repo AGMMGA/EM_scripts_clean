@@ -1,5 +1,3 @@
-#!/usr/bin/python2.7
-
 from __future__ import division, absolute_import, print_function
 import glob
 import os
@@ -33,6 +31,7 @@ class imageConverter(object):
         parser.add_argument('--n_cpus', help='How many cpus should be used. Default: all available -1')
         parser.add_argument('--noflip', help='Does NOT rotate and flip the jpg to conform with relion coordinates',
                             action='store_true')
+        parser.add_argument('--invert', help='Invert contrast', action='store_true')
         parser.parse_args(namespace=self) 
         return parser
         
@@ -75,6 +74,10 @@ class imageConverter(object):
                                                             1/int(self.lowpass))
             else:
                 sys.exit('{} is not a valid resolution')
+        if self.invert:
+            self.invert = '--mult=-1'
+        else:
+            self.invert = ''
         #checking cpus
         try:
             cpu_max = multiprocessing.cpu_count()
@@ -99,10 +102,11 @@ class imageConverter(object):
         elif os.path.isfile(outfile) and self.f:
             os.remove(outfile) #otherwise eman might make a stack
         command = 'python2.7 /Xsoftware64/EM/EMAN2/bin/e2proc2d.py ' + \
-            '{lowpass} {scale} {mrc} {jpg}'.format(mrc=mrcfile, 
+            '{lowpass} {scale} {invert} {mrc} {jpg}'.format(mrc=mrcfile, 
                                                    jpg=outfile,
                                                    scale = self.scale,
-                                                   lowpass = self.lowpass)
+                                                   lowpass = self.lowpass,
+                                                   invert = self.invert)
         command = command.split()
         s = subprocess.Popen(command, stdout=subprocess.PIPE, 
                              stderr = subprocess.PIPE)
@@ -144,10 +148,10 @@ class imageConverter(object):
     
     def make_commands(self, mrclist):
         cmds = []
-        for file in mrclist:
-            outfile = os.path.join(self.o, (file.split('/')[-1].replace('.mrc', '.jpg')))
+        for file_ in mrclist:
+            outfile = os.path.join(self.o, (file_.split('/')[-1].replace('.mrc', '.jpg')))
             command = 'python /Xsoftware64/EM/EMAN2/bin/e2proc2d.py ' + \
-                    '{lowpass} {scale} {mrc} {jpg}'.format(mrc=file, 
+                    '{lowpass} {scale} {mrc} {jpg}'.format(mrc=file_, 
                                                        jpg=outfile,
                                                        scale = self.scale,
                                                        lowpass = self.lowpass)

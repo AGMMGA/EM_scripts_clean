@@ -10,12 +10,12 @@ def main(input,out_dir, box_size):
         msg = (f'No files with pattern {input} found')
         sys.exit(msg)
         
-    for file in input_files:
-        with open(file, 'r') as f:
+    for file_ in input_files:
+        with open(file_, 'r') as f:
             j_object = json.load(f) 
         
-        out_file = os.path.join(out_dir, os.path.basename(file).split('_info.json')[0] + '.box')
-#         out_name = os.path.splitext(os.path.basename(file))[0] + '.box'
+        out_file = os.path.join(out_dir, os.path.basename(file_).split('_info.json')[0] + '.box')
+#         out_name = os.path.splitext(os.path.basename(file_))[0] + '.box'
 #         out_file = os.path.join(out_dir, out_name)
         with open(out_file, 'w') as out:
             for ptcl in j_object['boxes']:
