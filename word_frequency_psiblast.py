@@ -41,7 +41,7 @@ def plot_frequencies(final_text):
     plt.tick_params(labelsize='small')
     #plt.legend()
 #     plt.tight_layout()
-    plt.draw()
+    plt.show()
 
 def parse_result(xml_file):    
     with open (xml_file, 'r') as f:
@@ -58,13 +58,14 @@ def parse_result(xml_file):
                      'RecName:',
                      'isoform [A-Za-z]',
                      'partial',
-                     'isoform [0-9]'
+                     'isoform [0-9]',
+                     '[A-Z0-9]+_[A-Za-z0-9]+'
                      ]
             t = tag
             for pattern in clean: 
                 t = re.sub(pattern, '', t) #remove species names
             tags.append(t) 
-    tags = list(set(tags))
+#     tags = list(set(tags))
     words = ''.join(tags)
     return tags, words
             
@@ -79,5 +80,5 @@ def main(xml_file):
 
     
 if __name__ == '__main__':
-    xml_file = os.path.abspath(r'/mnt/home/a.murachelli/Downloads/blastp.xml')
+    xml_file = os.path.abspath(r'/mnt/home/a.murachelli/Downloads/nassos.xml')
     main(xml_file)
