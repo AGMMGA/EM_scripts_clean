@@ -1,4 +1,5 @@
 import os
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import re
@@ -31,6 +32,8 @@ useless_words = {'[uU]ncharacteri[sz]ed',
                      'function',
                      'unknown'}  #shorter than 2
 
+colors = iter(('red', 'orange'))
+
 def plot_frequencies(final_text):
     freq={}
 #     match_pattern = re.findall(r'\b[a-z]{1,15}\b', final_text)
@@ -59,16 +62,17 @@ def plot_frequencies(final_text):
         words_names.append(word)
         words_count.append(freq)
     # Plot histogram using matplotlib bar()
+    plt.figure()
     plt.ylabel('Words')
     plt.xlabel('Frequency')
     indexes = np.arange(len(words_names) )
     width = .4
-    plt.barh(indexes, words_count, width)
+    plt.barh(indexes, words_count, width, color=next(colors))
     plt.yticks(indexes + width * .4, words_names)
     plt.tick_params(labelsize='small')
     #plt.legend()
 #     plt.tight_layout()
-    plt.show()
+    plt.show(block=False)
 
 def parse_result(xml_file):    
     with open (xml_file, 'r') as f:
@@ -100,11 +104,18 @@ def parse_result(xml_file):
 def main(xml_file):
     tags, words = parse_result(xml_file)
     x = plot_frequencies(words)
-#     y = plot_frequencies(tags)
-#     plt.show()
+    y = plot_frequencies(tags)
+    plt.show()
 
 
     
 if __name__ == '__main__':
-    xml_file = os.path.abspath(r'/mnt/home/a.murachelli/Downloads/nassos.xml')
+    try:
+        xml_file = os.path.abspath(sys.argv[1])
+    except IndexError:
+        print('''\nPlease specify input file, e.g. python word_frequency_psyblast.py input_file.\n''')
+        sys.exit()
+    if not os.path.isfile(xml_file):
+        print(f'\n{xml_file} does not exist. Please input a valid file name\n')
+        sys.exit()
     main(xml_file)
