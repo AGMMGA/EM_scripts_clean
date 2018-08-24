@@ -32,6 +32,7 @@ class imageConverter(object):
         parser.add_argument('--noflip', help='Does NOT rotate and flip the jpg to conform with relion coordinates',
                             action='store_true')
         parser.add_argument('--invert', help='Invert contrast', action='store_true')
+        parser.add_argument('--file', help='File containing micrograph names')
         parser.parse_args(namespace=self) 
         return parser
         
@@ -40,6 +41,9 @@ class imageConverter(object):
         if not self.f:
             self.f = False
         #setting input dir and checking existence if supplied
+        #check for input file
+        if self.file and not os.path.isfile(self.file):
+            sys.exit(f'The input file {self.file} does not exist')
         if not self.i:
             self.i = os.getcwd()
         else:
@@ -134,6 +138,21 @@ class imageConverter(object):
             return files
         else:
             sys.exit('No mrc files found in {}'.format(self.i))
+            
+    def get_mrc_files_from_file(self, input_file):
+        with open (input_file, 'r') as filein:
+            files = filein.readlines()
+        #checking all files exist, or force flag is set
+        for f in files:
+            if not os.path.isfile(f) and self.f: #force
+                print(f'Warning: file {f} does not exist')
+                continue
+            elif not os.path.isfile and not self.f:
+                sys.exit('File {f} in file list {self.file} does not exist. Aborting. Use -f to force ')
+        #checking some files exist
+        if not files:
+            sys.exit(f'No files found in input file {input_file}')
+        return files
     
     def create_images(self, mrclist):
         if not os.path.isdir(self.o):
@@ -167,7 +186,10 @@ class imageConverter(object):
         pool.join()
         
     def main(self):
-            files = self.get_mrc_files()
+            if not self.file:
+                files = self.get_mrc_files()
+            else:
+                files = self.get_mrc_files_from_file(self.file)
             self.create_images_parallel(files)
 #             self.create_images(files) #testing
     
